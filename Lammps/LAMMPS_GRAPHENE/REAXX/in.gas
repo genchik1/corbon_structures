@@ -1,0 +1,58 @@
+#LAMMPS input file
+log C2_3000K_chenoweth_0.025.log.lammps
+#---------initialization---------
+units real
+dimension 3
+boundary p p p
+atom_style charge
+read_data C2_3000K.charge
+#--------force-field------------
+pair_style reax/c NULL
+pair_coeff * * ffield.reax.chenoweth C
+fix chargeeq all qeq/reax 1 0.0 10.0 1.0e-6 reax/c
+#--------reax energies-----------
+compute reax all pair reax/c
+variable eb equal c_reax[1]
+variable ea equal c_reax[2]
+variable elp equal c_reax[3]
+variable emol equal c_reax[4]
+variable ev equal c_reax[5]
+variable epen equal c_reax[6]
+variable ecoa equal c_reax[7]
+variable ehb equal c_reax[8]
+variable et equal c_reax[9]
+variable eco equal c_reax[10]
+variable ew equal c_reax[11]
+variable ep equal c_reax[12]
+variable efi equal c_reax[13]
+variable eqeq equal c_reax[14]
+#-----------settings------------
+compute ppa all pe/atom
+timestep 0.025
+variable Time equal step*dt/1000 #time in picoseconds
+thermo_style custom step v_Time temp press etotal ke pe fmax
+thermo_modify norm yes flush yes
+fix integrate all nve
+fix thermostat all temp/berendsen 3000 3000 5
+fix momentum all momentum 2000 linear 1 1 1 angular
+#---------minimize---------
+min_style sd
+minimize 1.0e-4 1.0e-6 100 1000
+reset_timestep 0
+#------------run------------
+thermo 20000 # 500 fs
+variable a loop 1 5 # 500 ps total
+label loop
+Fix reaxdata all ave/time 40000 1 40000 v_Time v_eb v_ea v_elp &
+v_ev v_epen v_ecoa v_ehb v_et v_eco v_ew v_ep v_eqeq &
+off 1 file C2_3000K_chenoweth_0.025.reax$a.txt
+Dump 1 all custom 40000 C2_3000K_chenoweth_0.025_$a.lammpstrj &
+id type x y z c_ppa
+dump_modify 1 flush yes
+run 4000000 #100 pecoseconds
+write_restart $a.restart
+undump 1
+unfix reaxdata
+next a
+jump in.script1 loop
+4

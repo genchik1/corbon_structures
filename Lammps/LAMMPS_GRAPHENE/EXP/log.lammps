@@ -1,0 +1,11 @@
+LAMMPS (26 Jan 2017-ICMS)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:90)
+  using 1 OpenMP thread(s) per MPI task
+units           metal
+dimension       3
+boundary        p p p
+atom_style      atomic
+variable         a equal 1.42
+lattice         custom 2.46 a1 sqrt(3)/2*v_a -1/2*v_a 0.0 a2 sqrt(3)/2*v_a 1.73 1/2*v_a a3 0.0 0.0 4.0                 basis 0.0 0.0 0.0 basis 0.5 0.16 0.0 basis 0.5 0.5 0.0 basis 0.0 0.66 0.0
+ERROR: Expected floating point parameter in input script or data file (../lattice.cpp:191)
+Last command: lattice         custom 2.46 a1 sqrt(3)/2*v_a -1/2*v_a 0.0 a2 sqrt(3)/2*v_a 1.73 1/2*v_a a3 0.0 0.0 4.0                 basis 0.0 0.0 0.0 basis 0.5 0.16 0.0 basis 0.5 0.5 0.0 basis 0.0 0.66 0.0

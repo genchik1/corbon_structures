@@ -1,0 +1,110 @@
+LAMMPS (26 Jan 2017-ICMS)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:90)
+  using 1 OpenMP thread(s) per MPI task
+units           metal
+dimension       3
+boundary        p p p
+atom_style      atomic
+lattice         custom 2.46 a1 1.0 0.0 0.0 a2 0.0 1.73 0.0 a3 0.0 0.0 4.0                 basis 0.0 0.0 0.0 basis 0.5 0.16 0.0 basis 0.5 0.5 0.0 basis 0.0 0.66 0.0
+Lattice spacing in x,y,z = 2.46 4.2558 9.84
+
+# C atoms region grap-графен
+region          grap block 3 10 0 4 -0.5 0.5
+
+# Simulation box size
+region          boundary block -5 15 -5 15 -5 5
+
+# Combine regions
+region          whole union 2 grap boundary
+
+# Create viewing box - окно просмотра
+create_box      1 boundary
+Created orthogonal box = (-12.3 -21.279 -49.2) to (36.9 63.837 49.2)
+  1 by 1 by 1 MPI processor grid
+
+# Creating C atoms
+create_atoms    1 region grap           #создает атомы на решетке
+Created 128 atoms
+mass            1 12
+group           sample region grap      # определяет набор атомов как группу
+128 atoms in group sample
+
+#-----силовое поле------
+pair_style      tersoff
+pair_coeff      * * SiC_1994.tersoff C
+Reading potential file SiC_1994.tersoff with DATE: 2011-05-03
+
+neighbor        2.0 bin                 #устанавливает параметры, влияющие на построение попарно соседних списков
+neigh_modify    delay 0                 #задержка
+
+#-------СИМУЛЯЦИЯ------
+#Начальные скорости при данной температуре
+velocity        all create 2000 458273253 dist gaussian       # T   gaussian-распределение скоростей
+timestep        0.001
+thermo_style    custom step temp etotal
+thermo          1000
+
+# Сохранение координат
+dump            1 all xyz 1000 dump2-*.xyz
+dump_modify     1 element C
+
+# Параметры минимизации
+min_style       cg
+minimize        1.0e-10 1.0e-12 100000 100000
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 4.1
+  ghost atom cutoff = 4.1
+  binsize = 2.05, bins = 25 42 49
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair tersoff, full, perpetual
+      pair build: full/bin
+      stencil: full/bin/3d
+      bin: standard
+Memory usage per processor = 5.51312 Mbytes
+Step Temp TotEng 
+       0         2000   -519.68736 
+      88         2000   -579.81952 
+Loop time of 0.064502 on 1 procs for 88 steps with 128 atoms
+
+96.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+        -552.519436505     -612.651597047     -612.651597096
+  Force two-norm initial, final = 47.338 0.00194268
+  Force max component initial, final = 8.83675 0.000395366
+  Final line search alpha, max atom move = 1 0.000395366
+  Iterations, force evaluations = 88 168
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.061001   | 0.061001   | 0.061001   |   0.0 | 94.57
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.003501   |            |       |  5.43
+
+Nlocal:    128 ave 128 max 128 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  1608 ave 1608 max 1608 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1608
+Ave neighs/atom = 12.5625
+Neighbor list builds = 1
+Dangerous builds = 0
+
+print           "Simulation cmplete"
+Simulation cmplete
+fix 1 all phonon 20 5000 200000 map.in EAM3D
+ERROR: Cannot open input map file map.in (../fix_phonon.cpp:569)
+Last command: fix 1 all phonon 20 5000 200000 map.in EAM3D

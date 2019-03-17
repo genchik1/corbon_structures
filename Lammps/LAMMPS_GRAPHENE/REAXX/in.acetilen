@@ -1,0 +1,81 @@
+#---------initialization---------
+units real
+dimension 3
+boundary f f f
+atom_style charge
+atom_modify map hash
+read_data acetylene.charge
+group C1 id 1
+group C2 id 2
+group hydrogens subtract all C1 C2
+#--------force-field------------
+pair_style reax/c NULL
+pair_coeff * * ffield.reax.chenoweth C C H
+fix chargeeq all qeq/reax 1 0.0 10.0 1.0e-6 reax/c
+compute reax all pair reax/c
+variable eb equal c_reax[1]/count(all)
+variable ea equal c_reax[2]/count(all)
+variable elp equal c_reax[3]/count(all)
+variable emol equal c_reax[4]/count(all)
+variable ev equal c_reax[5]/count(all)
+variable epen equal c_reax[6]/count(all)
+variable ecoa equal c_reax[7]/count(all)
+variable ehb equal c_reax[8]/count(all)
+variable et equal c_reax[9]/count(all)
+variable eco equal c_reax[10]/count(all)
+variable ew equal c_reax[11]/count(all)
+variable ep equal c_reax[12]/count(all)
+variable efi equal c_reax[13]/count(all)
+variable eqeq equal c_reax[14]/count(all)
+#------harmonic bond equations------
+variable dist equal z[2]-z[1]
+variable reax_Cf equal fz[1]
+compute ppm C2 pe/atom
+compute ptm all reduce sum c_ppm
+variable reax_Ce equal c_ptm/count(C2)
+#parameters from TINKER OPLS files
+variable b_CZe equal 1150.00*(v_dist-1.2100)^2
+variable b_CMe equal 549.00*(v_dist-1.3400)^2
+variable b_CZf equal 2*1150.00*(v_dist-1.2100)
+variable b_CMf equal 2*549.00*(v_dist-1.3400)
+#-----------settings------------
+timestep 0.5
+thermo 100
+thermo_style custom step v_dist ke pe v_reax_Cf v_reax_Ce
+thermo_modify norm yes
+#----------minimize----------
+fix 2 all viscous 0.3
+min_style cg
+min_modify line quadratic
+fix 1 hydrogens nve
+velocity all set 0.0 0.0 0.0 units box
+fix freeze1 C2 setforce 0.0 0.0 0.0
+fix freeze2 C1 setforce 0.0 0.0 0.0
+minimize 0.0 1.0e-6 10000 100000
+unfix freeze1
+unfix freeze2
+run 400000
+reset_timestep 0
+#---Loop-----------------------------------------
+#------------------------------------------------
+dump 1 all atom 16000 acetylene.lammpstrj
+dump_modify 1 scale no
+fix data all ave/time 1 1 8000 v_dist v_b_CZe v_b_CZf &
+v_b_CMe v_b_CMf v_reax_Cf v_reax_Ce file thermo.txt
+variable a loop 1 1500
+label loop
+#------------run------------
+fix 1 C2 nve
+velocity C2 set 0.0 0.0 0.003 units box
+fix freeze all setforce 0.0 0.0 0.0
+run 1
+unfix freeze
+#----------minimize---------
+unfix 1
+fix 1 hydrogens nve
+velocity all set 0.0 0.0 0.0 units box
+run 7999
+#------------------------------------------------
+#-----Loop End-----------------------------------
+next a
+jump in.script loop
