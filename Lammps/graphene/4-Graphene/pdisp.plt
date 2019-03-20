@@ -1,7 +1,7 @@
 set term post enha colo 20
 set out "pdisp.eps"
 
-set term png size 300, 200
+set term png size 600, 400
 set output 'plot.png' 
 
 set xlabel "q"
