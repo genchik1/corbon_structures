@@ -1,0 +1,91 @@
+LAMMPS (8 Feb 2019)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:87)
+  using 1 OpenMP thread(s) per MPI task
+package omp 0
+using multi-threaded neighbor list subroutines
+package omp 4
+set 4 OpenMP thread(s) per MPI task
+using multi-threaded neighbor list subroutines
+# =====================================================================
+# ===== Matveev Gennadiy 29.09.2017...mail: geno.matveev@gmail.com ====
+# ==================== Aluminum crystal melting =======================
+# =====================================================================
+
+# _3 ���������������� ������ "mom no rot yes dist uniform"
+# _3 ��������� �������� �� 1 �������
+
+units        	metal
+dimension    	3
+boundary     	p p p
+lattice      	fcc 3.9860 orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
+Lattice spacing in x,y,z = 3.986 3.986 3.986
+region   	    box block 0 6.5 0 6.5 0 6.5
+create_box	  1 box
+Created orthogonal box = (0 0 0) to (25.909 25.909 25.909)
+  1 by 1 by 1 MPI processor grid
+create_atoms	1 box
+Created 1099 atoms
+  Time spent = 0.00100112 secs
+mass	        * 26.981539
+pair_style	  eam
+pair_coeff	  * * Al_jnp.eam
+Reading potential file Al_jnp.eam with DATE: 2007-06-11
+#neighbor     8.0 bin
+
+variable	    T equal 50
+variable	    run equal 120000
+variable	    thermo equal 10000
+variable      Pe equal pe
+variable      Vol equal vol
+variable      Temp equal temp
+
+velocity     	all create ${T} 4234280 mom no rot yes dist uniform
+velocity     	all create 50 4234280 mom no rot yes dist uniform
+
+dump         	1 all xyz 1099 return\alumin.xyz
+fix          	1 all npt temp $T $T 0.01 iso 0 0 0.1 #Tdump - �����, �� ������� ������ ����������� �����������
+fix          	1 all npt temp 50 $T 0.01 iso 0 0 0.1 
+fix          	1 all npt temp 50 50 0.01 iso 0 0 0.1 
+
+#========= RDF =========
+compute      	q all rdf 70
+fix           2 all ave/time 1 ${T} ${run} c_q[1] c_q[2] c_q[3] file return\RDF\RDF_${T}.rdf mode vector
+fix           2 all ave/time 1 50 ${run} c_q[1] c_q[2] c_q[3] file return\RDF\RDF_${T}.rdf mode vector
+fix           2 all ave/time 1 50 120000 c_q[1] c_q[2] c_q[3] file return\RDF\RDF_${T}.rdf mode vector
+fix           2 all ave/time 1 50 120000 c_q[1] c_q[2] c_q[3] file return\RDF\RDF_50.rdf mode vector
+
+#======= Save file Pe/Temp and Vol/Temp ========
+fix 		      3 all print ${run} "${Pe} ${Temp}" file return\pe-temp.txt title ""
+fix 		      3 all print 120000 "${Pe} ${Temp}" file return\pe-temp.txt title ""
+fix 		      4 all print ${run} "${Vol} ${Temp}" file return\vol-temp.txt title ""
+fix 		      4 all print 120000 "${Vol} ${Temp}" file return\vol-temp.txt title ""
+
+#========= run =========
+thermo		    ${thermo}
+thermo		    10000
+run 		      ${run}
+run 		      120000
+Last active /omp style is pair_style eam/omp
+Neighbor list info ...
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 8
+  ghost atom cutoff = 8
+  binsize = 4, bins = 7 7 7
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair eam/omp, perpetual
+      attributes: half, newton on, omp
+      pair build: half/bin/atomonly/newton/omp
+      stencil: half/bin/3d/newton
+      bin: standard
+  (2) compute rdf, occasional, copy from (1)
+      attributes: half, newton on, omp
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 7.25 | 7.25 | 7.25 Mbytes
+Step Temp E_pair E_mol TotEng Press Volume 
+       0           50   -3264.6335            0   -3257.5372     95678.07    17392.097 
+   10000    48.010451   -3691.8364            0   -3685.0223    305.83654    17625.266 
+   20000    50.165278   -3692.0538            0   -3684.9339   -1759.8292    17664.671 
+   30000    49.465133   -3691.8927            0   -3684.8722    314.84493    17624.315 

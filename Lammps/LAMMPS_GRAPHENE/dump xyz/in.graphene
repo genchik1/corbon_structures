@@ -1,0 +1,47 @@
+units           metal     
+dimension       3     
+boundary        p p p 
+atom_style      atomic
+lattice         custom 2.46 a1 1.0 0.0 0.0 a2 0.0 1.73 0.0 a3 0.0 0.0 4.0 & 
+                basis 0.0 0.0 0.0 basis 0.5 0.16 0.0 basis 0.5 0.5 0.0 basis 0.0 0.66 0.0
+
+# C atoms region grap-графен 
+region          grap block 0 10 0 10 -0.5 0.5
+
+# Simulation box size 
+region          boundary block -5 15 -5 15 -5 5
+
+# Combine regions
+region          whole union 2 grap boundary
+
+# Create viewing box - окно просмотра
+create_box      1 boundary 
+
+# Creating C atoms
+create_atoms    1 region grap           #создает атомы на решетке
+mass            1 12
+group           sample region grap      # определяет набор атомов как группу
+
+#-----силовое поле------
+pair_style      tersoff
+pair_coeff      * * SiC_1994.tersoff C
+
+neighbor        2.0 bin                 #устанавливает параметры, влияющие на построение попарно соседних списков
+neigh_modify    delay 0                 #задержка
+
+#-------СИМУЛЯЦИЯ------
+#Начальные скорости при данной температуре
+velocity        all create 100 458273253 dist gaussian       # T=100   gaussian-распределение скоростей
+timestep        0.001
+thermo_style    custom step temp etotal vol lx ly lz press pxx pyy pzz cpu
+thermo          1000
+
+# Сохранение координат
+dump            1 all xyz 1000 dump-*.xyz
+dump_modify     1 element C
+
+# Параметры минимизации
+min_style       cg 
+minimize        1.0e-10 1.0e-12 100000 100000
+
+print           "Simulation cmplete"

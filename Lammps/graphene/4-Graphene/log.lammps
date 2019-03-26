@@ -1,0 +1,55 @@
+LAMMPS (8 Feb 2019)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:87)
+  using 1 OpenMP thread(s) per MPI task
+# 3D copper block simulation
+boundary     p p p
+units        metal
+atom_style   atomic
+
+# geometry
+read_data	 data.pos
+  triclinic box = (0 0 -10) to (25.22 21.8412 10) with tilt (12.61 0 0)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  200 atoms
+
+mass		*   12.0107
+
+# EAM potential
+pair_style   tersoff
+pair_coeff   * * SiC.tersoff C
+neighbor     2. nsq
+neigh_modify every 1 delay 0 check yes
+
+#Langevin random seed
+variable     dt equal 2e-3
+variable     r  equal 57085
+variable     T  equal 300
+variable     dT equal "v_dt * 100"
+
+timestep ${dt}
+timestep 0.002
+
+# initialize
+velocity     all create $T 28459 rot yes dist gaussian mom yes
+velocity     all create 300 28459 rot yes dist gaussian mom yes
+reset_timestep 0
+
+# fixes
+fix          1 all langevin $T $T ${dT} 73504 zero yes
+fix          1 all langevin 300 $T ${dT} 73504 zero yes
+fix          1 all langevin 300 300 ${dT} 73504 zero yes
+fix          1 all langevin 300 300 0.2 73504 zero yes
+fix          2 all nve
+fix          3 all phonon 10 50000 1000000 map.in Graphene nasr 50
+
+# output
+#                    1    2    3  4  5     6   7
+thermo_style custom step temp pe ke press pxx pyy
+thermo       100
+
+restart      1000000 restart.one restart.two
+
+dump   1 all molfile 100 dump.graphene.xyz xyz
+ERROR on proc 0: No suitable molfile plugin found (../dump_molfile.cpp:105)
+Last command: dump   1 all molfile 100 dump.graphene.xyz xyz

@@ -55,16 +55,16 @@ if __name__ == "__main__":
     h = 1
     V = 1
     d = 2
-    b_p = .9
+    b_p = .5
     b_m = .1
   
-    n = 4
+    n = 10
 
     v = np.linspace(-n, n, 100)
 
-    k_x = 1s
+    k_x = 1
 
-    # k_x = Symbol('k_X')
+    k_x = Symbol('k_X')
     k_y = Symbol('k_y')
 
     # k_x = np.linspace(-n, n, 100)
@@ -75,10 +75,10 @@ if __name__ == "__main__":
     E2 = (-1)*V*h*sqrt(k_x*k_x + k_y*k_y)
     E3 = V*h*sqrt(k_x*k_x + k_y*k_y)
 
-    E4 = (h*V/1-b_p*b_m)*(-k_x*(b_p+b_m)*(1/tan(-k_x*d))+(b_p-b_m)*k_y)
+    E4 = (h*V/1-b_p*b_m)*(k_x*(b_p+b_m)*(1/tanh(k_x*d))+(b_p-b_m)*k_y)
 
     E5 = (-1)*V*h*sqrt((-1)*(k_x*k_x) + k_y*k_y) 
     E6 = V*h*sqrt((-1)*(k_x*k_x) + k_y*k_y)
 
-    plot(E1, E2, E3, E5, E6, (k_y,-n,n,0.01))
-    # plot3d(E1, E2, E4, (k_y,-n,n,0.01), (k_x,-n,n,0.01))
+    # plot( E5, E6,(k_y,-n,n,0.01))
+    plot3d(E4, (k_y,-n,n,0.0001), (k_x,-n,n,0.0001))

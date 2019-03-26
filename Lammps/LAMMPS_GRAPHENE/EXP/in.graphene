@@ -1,0 +1,54 @@
+units           metal     
+dimension       3     
+boundary        p p p 
+atom_style      atomic
+variable         a equal 1.42
+lattice         custom 2.46 a1 sqrt(3)/2*v_a -1/2*v_a 0.0 a2 sqrt(3)/2*v_a 1.73 1/2*v_a a3 0.0 0.0 4.0 & 
+                basis 0.0 0.0 0.0 basis 0.5 0.16 0.0 basis 0.5 0.5 0.0 basis 0.0 0.66 0.0
+
+# C atoms region grap-графен 
+region          grap block 0.5 2 1 2 -0.5 0.5   # ячейка_графена_из_6-ти_атомов
+
+# Simulation box size 
+region          boundary block -1 2 -1 2 -1 1
+
+# Combine regions
+region          whole union 2 grap boundary
+
+# Create viewing box - окно просмотра
+create_box      1 boundary 
+
+# Creating C atoms
+create_atoms    1 region grap           #создает атомы на решетке
+mass            1 12
+group           sample region grap      # определяет набор атомов как группу
+
+#-----силовое поле------
+pair_style	    airebo 3.0 1 1
+pair_coeff	    * * CH.airebo C
+
+neighbor        2.0 bin                 #устанавливает параметры, влияющие на построение попарно соседних списков
+neigh_modify    delay 0                 #задержка
+
+#-------СИМУЛЯЦИЯ------
+#Начальные скорости при данной температуре
+velocity        all create 100 458273253 dist gaussian       # T=100   gaussian-распределение скоростей
+timestep        0.001
+thermo_style    custom step temp etotal vol lx ly lz press pxx pyy pzz cpu
+thermo          1000
+
+# Сохранение координат
+dump            1 all xyz 1000 dump-*.xyz
+dump_modify     1 element C
+
+# Параметры минимизации
+min_style       cg 
+minimize        1.0e-10 1.0e-12 100000 100000
+
+print           "Simulation complete"
+
+#-----------Интенсивность дифракции электронов-------------
+#compute         1 all saed 0.0251 C Kmax 2.0 Zone 0 0 0 c 0.05 0.05 0.05 manual echo
+#fix             1 all saed/vtk 1 1 1 c_1 file C6.saed
+
+fix              1 qmol qmmm
