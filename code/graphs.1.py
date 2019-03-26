@@ -57,7 +57,11 @@ if __name__ == "__main__":
     d = 2
     b_p = .5
     b_m = .1
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 11be6bf8ae96b94d44eefa3264e05ff4b54c24f5
     n = 10
 
     v = np.linspace(-n, n, 100)
@@ -70,15 +74,18 @@ if __name__ == "__main__":
     # k_x = np.linspace(-n, n, 100)
     # k_y = np.linspace(-n, n, 100)
 
-
     E1 = (h*V/1-b_p*b_m)*(k_x*(b_p+b_m)*(1/tan(k_x*d))+(b_p-b_m)*k_y)
     E2 = (-1)*V*h*sqrt(k_x*k_x + k_y*k_y)
     E3 = V*h*sqrt(k_x*k_x + k_y*k_y)
 
     E4 = (h*V/1-b_p*b_m)*(k_x*(b_p+b_m)*(1/tanh(k_x*d))+(b_p-b_m)*k_y)
 
-    E5 = (-1)*V*h*sqrt((-1)*(k_x*k_x) + k_y*k_y) 
+    E5 = (-1)*V*h*sqrt((-1)*(k_x*k_x) + k_y*k_y)
     E6 = V*h*sqrt((-1)*(k_x*k_x) + k_y*k_y)
 
+<<<<<<< HEAD
     # plot( E5, E6,(k_y,-n,n,0.01))
+=======
+    # plot(E5, E6,(k_y,-n,n,0.01))
+>>>>>>> 11be6bf8ae96b94d44eefa3264e05ff4b54c24f5
     plot3d(E4, (k_y,-n,n,0.0001), (k_x,-n,n,0.0001))

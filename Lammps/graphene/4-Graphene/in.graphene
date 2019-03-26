@@ -38,8 +38,16 @@ thermo       100
 
 restart      1000000 restart.one restart.two
 
+<<<<<<< HEAD
 dump   1 all molfile 100 dump.graphene.xyz xyz
 
 # execution
 # run 	 6000000
 # write_restart Restart.final
+=======
+dump   1 all xyz 50000 dump.graphene.xyz
+
+# execution
+run 	 6000000
+write_restart Restart.final
+>>>>>>> 11be6bf8ae96b94d44eefa3264e05ff4b54c24f5

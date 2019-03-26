@@ -1,0 +1,91 @@
+LAMMPS (8 Feb 2019)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:87)
+  using 1 OpenMP thread(s) per MPI task
+# 3D copper block simulation
+boundary     p p p
+units        metal
+atom_style   atomic
+
+# geometry
+read_data	 data_du-1_0.pos
+  triclinic box = (0 0 -10) to (25.22 21.8412 10) with tilt (12.61 0 0)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  200 atoms
+
+mass		*   12.0107
+
+# EAM potential
+pair_style   tersoff
+pair_coeff   * * SiC.tersoff C
+neighbor     2. nsq
+neigh_modify every 1 delay 0 check yes
+
+#Langevin random seed
+variable     dt equal 2e-3
+variable     r  equal 57085
+variable     T  equal 300
+variable     dT equal "v_dt * 100"
+
+timestep ${dt}
+timestep 0.002
+
+# initialize
+velocity     all create $T 28459 rot yes dist gaussian mom yes
+velocity     all create 300 28459 rot yes dist gaussian mom yes
+reset_timestep 0
+
+# fixes
+fix          1 all langevin $T $T ${dT} 73504 zero yes
+fix          1 all langevin 300 $T ${dT} 73504 zero yes
+fix          1 all langevin 300 300 ${dT} 73504 zero yes
+fix          1 all langevin 300 300 0.2 73504 zero yes
+fix          2 all nve
+fix          3 all phonon 10 50000 1000000 map.in Graphene nasr 50
+
+# output
+#                    1    2    3  4  5     6   7
+thermo_style custom step temp pe ke press pxx pyy
+thermo       100
+
+restart      1000000 restart.one restart.two
+
+dump   1 all xyz 50000 dump.graphene.xyz
+
+# execution
+run 	 6000000
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 4.1
+  ghost atom cutoff = 4.1
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair tersoff, perpetual
+      attributes: full, newton on
+      pair build: full/nsq
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 3.919 | 3.919 | 3.919 Mbytes
+Step Temp PotEng KinEng Press Pxx Pyy 
+       0          300   -1310.6614    7.7168307    85882.601    192541.86    64398.202 
+     100     1994.971   -1406.4581    51.316179    8084.2295    12576.655    11775.687 
+     200    1022.6866   -1447.5215    26.306331    3865.5329    5986.3349    5878.0583 
+     300    543.61817   -1462.6323    13.983365    2686.1267     2730.802     5244.899 
+     400    442.40525   -1466.7854    11.379888    2210.1852    5284.9879    1288.5764 
+     500    346.83231   -1468.4845    8.9214874    2525.5761    4413.1916    3100.7602 
+     600     308.5317   -1469.5808    7.9362897    2095.1037    1564.0102    4826.5057 
+     700    314.58254   -1470.3512    8.0919339    2239.2557    1981.1962     4704.851 
+     800    303.54929   -1469.0932    7.8081282     2591.059    3303.9669    4563.9505 
+     900     318.7812   -1470.5471     8.199935     2382.808    3691.9581    3457.2501 
+    1000    311.08393   -1470.5398    8.0019399    2357.2542    3235.4829    3907.2187 
+    1100    295.08715   -1470.3551    7.5904586    2888.5111    3830.0032    4957.1547 
+    1200    291.95316   -1470.3569    7.5098437    3318.1309    4203.9606     5744.436 
+    1300    297.99986   -1471.0507    7.6653816    3021.7701    4333.1415    4576.9655 
+    1400    280.42408   -1470.4485    7.2132839    1854.4081    2923.6381    2725.1974 
+    1500    317.25257   -1471.3934    8.1606144    2113.8703    3696.5111    2622.4403 
+    1600    325.78471   -1470.1357    8.3800847    1981.5982    1898.8847    3944.2843 
+    1700    317.03102   -1470.0622    8.1549155    1409.4468    3992.1231    424.96225 
+    1800    286.52073   -1469.9927    7.3701065    2055.1092    5741.1177    528.79161 
+    1900    280.76246   -1470.8673    7.2219878    1655.9705    4920.0095    105.67688 
+    2000    291.92115   -1470.4474    7.5090202    2364.5175      4432.75    2636.0494 
+    2100     286.9381   -1470.6623    7.3808424    2277.6791    5477.4472    1522.4138 
