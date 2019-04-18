@@ -27,7 +27,8 @@ velocity     all create $T 28459 rot yes dist gaussian mom yes
 reset_timestep 0
 
 # fixes 
-fix          1 all langevin $T $T ${dT} 73504 zero yes
+fix          1 all 
+ $T $T ${dT} 73504 zero yes
 fix          2 all nve
 fix          3 all phonon 10 50000 1000000 map.in Graphene nasr 50
 
