@@ -1,0 +1,155 @@
+LAMMPS (8 Feb 2019)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:87)
+  using 1 OpenMP thread(s) per MPI task
+units	 metal
+
+dimension 2
+
+newton on
+
+processors * * *
+
+boundary p p p
+
+atom_style atomic
+
+pair_style tersoff
+#--------------Create Atoms----------------
+
+lattice custom 1.0 a1 2.13 1.2297 0.0  a2 0.0 2.4595 0.0 a3 0.0 0.0 6.7                   basis 0.0 0.0 0.0  basis 0.5773 0.0 0.0
+Lattice spacing in x,y,z = 2.13 3.6892 6.7
+
+region mySheet block  0 10 0 10 0 1 units lattice
+
+create_box 1 mySheet
+Created orthogonal box = (0 0 0) to (21.3 36.892 6.7)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 region mySheet
+Created 296 atoms
+  Time spent = 0 secs
+mass * 12.0107
+velocity all create 300.0 5432373 dist gaussian
+
+#------------------
+
+pair_coeff * * SiC.tersoff C
+Reading potential file SiC.tersoff with DATE: 2011-04-26
+
+#-------------
+neighbor 2.0 bin
+neigh_modify delay 3
+
+timestep 0.00001
+thermo_style custom step pe etotal temp
+thermo 1000
+
+dump graph all xyz 50 out.diamond.000*.xyz
+
+min_style cg
+minimize 1e-6 1e-6 10000 10000
+WARNING: Using 'neigh_modify every 1 delay 0 check yes' setting during minimization (../min.cpp:168)
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 4.1
+  ghost atom cutoff = 4.1
+  binsize = 2.05, bins = 11 18 4
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair tersoff, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/2d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 5.201 | 5.201 | 5.201 Mbytes
+Step PotEng TotEng Temp 
+       0    463.47314    471.09949          300 
+      85   -2077.8155   -2070.1892          300 
+Loop time of 0.169056 on 1 procs for 85 steps with 296 atoms
+
+101.7% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+         463.473138588     -2077.81522487     -2077.81550228
+  Force two-norm initial, final = 967.367 6.20624
+  Force max component initial, final = 50.8114 2.87643
+  Final line search alpha, max atom move = 0.00548881 0.0157882
+  Iterations, force evaluations = 85 221
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.15609    | 0.15609    | 0.15609    |   0.0 | 92.33
+Neigh   | 0.00099683 | 0.00099683 | 0.00099683 |   0.0 |  0.59
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0.0060101  | 0.0060101  | 0.0060101  |   0.0 |  3.56
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.005955   |            |       |  3.52
+
+Nlocal:    296 ave 296 max 296 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    200 ave 200 max 200 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  5362 ave 5362 max 5362 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 5362
+Ave neighs/atom = 18.1149
+Neighbor list builds = 1
+Dangerous builds = 0
+#-----------------dynamics
+
+fix dynamics all nve
+
+fix heating all temp/berendsen 300.0 1000.0 0.0001
+
+run 1000
+Per MPI rank memory allocation (min/avg/max) = 4.076 | 4.076 | 4.076 Mbytes
+Step PotEng TotEng Temp 
+      85   -2077.8155   -2070.1892          300 
+    1000   -2052.7147   -2029.1826    925.68859 
+    1085   -2050.6979   -2025.6511    985.27422 
+Loop time of 0.801856 on 1 procs for 1000 steps with 296 atoms
+
+Performance: 1.078 ns/day, 22.274 hours/ns, 1247.107 timesteps/s
+89.6% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.68627    | 0.68627    | 0.68627    |   0.0 | 85.59
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0049601  | 0.0049601  | 0.0049601  |   0.0 |  0.62
+Output  | 0.10566    | 0.10566    | 0.10566    |   0.0 | 13.18
+Modify  | 0.002969   | 0.002969   | 0.002969   |   0.0 |  0.37
+Other   |            | 0.001994   |            |       |  0.25
+
+Nlocal:    296 ave 296 max 296 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    200 ave 200 max 200 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  5382 ave 5382 max 5382 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 5382
+Ave neighs/atom = 18.1824
+Neighbor list builds = 0
+Dangerous builds = 0
+
+unfix heating
+
+#fix cooling all temp/berendsen 1000.0 1.0 0.0001
+
+#run 100000
+
+#unfix cooling
+
+#-----------
+unfix dynamics
+undump graph
+Total wall time: 0:00:01

@@ -76,8 +76,8 @@ if __name__ == '__main__':
     b_p = .4
     b_m = .6
 
-    kx = np.linspace(-n, n, 80)
-    ky = np.linspace(-n, n, 80)
+    kx = np.linspace(-n, n, 50)
+    ky = np.linspace(-n, n, 50)
 
 
     ################################################################
@@ -232,3 +232,31 @@ if __name__ == '__main__':
 
     df5_2 = intersections(pd.DataFrame(result))
     df5_2.to_csv('result/bub_df4', sep='\t', index=None, header=None)
+
+
+    result = []
+    for k_y in ky:
+        for k_x in kx:
+            E1 = V*h*np.sqrt(k_x**2 + k_y**2)
+            E2 = -V*h*np.sqrt(k_x**2 + k_y**2)
+
+            if not np.isnan(E1) and not np.isnan(E2):
+                result.append({'ky':k_y, 'e1':E2, 'e2':E1})
+
+    df5_2 = pd.DataFrame(result)
+    df5_2.to_csv('result/bub_df5', sep='\t', index=None, header=None)
+
+
+    result = []
+    for k_y in ky:
+        for k_x in kx:
+            E1 = V*h*np.sqrt((-1)*(k_x)**2 + k_y**2)
+            E2 = -V*h*np.sqrt((-1)*(k_x)**2 + k_y**2)
+
+            if not np.isnan(E1) and not np.isnan(E2):
+                result.append({'ky':k_y, 'e1':E2, 'e2':E1})
+
+    df5_2 = pd.DataFrame(result)
+    df5_2.to_csv('result/bub_df6', sep='\t', index=None, header=None)
+
+    

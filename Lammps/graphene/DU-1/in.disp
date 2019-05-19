@@ -1,16 +1,16 @@
+/mnt/c/corbon_structures/Lammps/graphene/DU-1/Graphene.bin.6000000
 100
 1
 2
-1
-pdisp.dat
-0   0    0       ! Gamma
-0.5 0.5  0       ! M
+/mnt/c/corbon_structures/Lammps/graphene/DU-1/pdisp.dat
+0 0 0 ! Gamma
+0.5 0.5 0 ! M
 21
-0.5 0.5  0       ! M
+0.5 0.5 0 ! M
 0.3333333333 0.6666666666666 0. ! K
 11
 0.3333333333 0.6666666666666 0. ! K
-0.  0   0        ! Gamma
+0 0 0 ! Gamma
 21
 q
 0

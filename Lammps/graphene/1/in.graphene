@@ -1,0 +1,60 @@
+units	 metal
+
+dimension 2
+
+newton on
+
+processors * * *
+
+boundary p p p
+
+atom_style atomic
+
+pair_style tersoff
+#--------------Create Atoms----------------
+  
+lattice custom 1.0 a1 2.13 1.2297 0.0  a2 0.0 2.4595 0.0 a3 0.0 0.0 6.7  &
+                 basis 0.0 0.0 0.0  basis 0.5773 0.0 0.0
+
+region mySheet block  0 10 0 10 0 1 units lattice
+
+create_box 1 mySheet
+create_atoms 1 region mySheet
+mass * 12.0107
+velocity all create 300.0 5432373 dist gaussian
+
+#------------------
+
+pair_coeff * * SiC.tersoff C
+
+#-------------
+neighbor 2.0 bin
+neigh_modify delay 3
+
+timestep 0.00001
+thermo_style custom step pe etotal temp
+thermo 1000
+
+dump graph all xyz 50 out.diamond.000*.xyz
+
+min_style cg
+minimize 1e-6 1e-6 10000 10000
+#-----------------dynamics
+
+fix dynamics all nve
+
+fix heating all temp/berendsen 300.0 1000.0 0.0001
+
+run 1000
+
+unfix heating
+
+#fix cooling all temp/berendsen 1000.0 1.0 0.0001
+
+#run 100000
+
+#unfix cooling
+
+#-----------
+unfix dynamics
+undump graph
